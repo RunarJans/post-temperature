@@ -1,0 +1,6 @@
+[Unit]
+Description=Post temperature to student server
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/post-temperature

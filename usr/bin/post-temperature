@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+. /etc/post-temperature.conf
+
+TEMP_RAW=$(cat '/sys/bus/iio/devices/iio:device0/in_temp0_raw')
+TEMP_SCALE=$(cat '/sys/bus/iio/devices/iio:device0/in_temp0_scale')
+TEMP_OFFSET=$(cat '/sys/bus/iio/devices/iio:device0/in_temp0_offset')
+
+TEMP=$(echo "scale=1; (${TEMP_RAW} - ${TEMP_OFFSET}) / ${TEMP_SCALE}" | bc)
+
+JSON_PAYLOAD="{\"temperature\":\"${TEMP}\"}"
+
+printf 'Posting %s to %s\n' "${JSON_PAYLOAD}" "${STUDENT_SERVER_URI}"
+
+curl "${STUDENT_SERVER_URI}" \
+  --header "Content-Type: application/json" \
+  --data "${JSON_PAYLOAD}"
